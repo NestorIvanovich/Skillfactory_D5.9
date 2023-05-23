@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 
 class Author(models.Model):
@@ -7,26 +8,27 @@ class Author(models.Model):
     rating = models.IntegerField()
 
     def update_rating(self):
-        post_rating = sum(post.rating for post in Post.objects.filter(
-            author=self))
-        comment_rating = sum(comment.rating for comment in
-                             Comment.objects.filter(user=self.user))
-        comment_rating_to_posts = sum(comment.rating for comment in
-                                      Comment.objects.filter(
-                                          post__author=self.user))
+        post_rating = Post.objects.filter(author=self).aggregate(
+            Sum('rating'))['rating__sum']
+        comment_rating = Comment.objects.filter(user=self.user).aggregate(
+            Sum('rating'))['rating__sum']
+        comment_rating_to_posts = Comment.objects.filter(
+            post__author__user=self.user).aggregate(Sum('rating'))[
+            'rating__sum']
 
-        self.rating = (post_rating * 3) + comment_rating +\
-                      comment_rating_to_posts
+        self.rating = ((post_rating * 3) + comment_rating +
+                       comment_rating_to_posts)
         self.save()
 
 
 class Category(models.Model):
-    name = models.CharField(unique=True)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    content_type = models.CharField(choices=['статья', 'новость'])
+    content_type = models.CharField(max_length=10, choices=[
+        ('статья', 'Статья'), ('новость', 'Новость')])
     created_time = models.DateTimeField(auto_now_add=True)
     categories = models.ManyToManyField(Category, through='PostCategory')
     title = models.CharField(max_length=255)
