@@ -14,7 +14,6 @@ class PostFilter(FilterSet):
         label='сортировать позже'
     )
 
-
     class Meta:
         model = Post
         fields = {
