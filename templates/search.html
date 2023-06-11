@@ -1,18 +1,26 @@
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}
 {% block title %}
-Все посты
+Поиск на сайте
 {% endblock title %}
 {% block content %}
-<h1>Количество публикаций: {{ posts | length}}</h1>
-{% if posts %}
+
+<form action="" method="get">
+    {{ filterset.form.as_p }}
+
+
+    <input type="submit" value="Поиск" />
+</form>
+<hr>
+<h1>Количество публикаций: {{ search | length}}</h1>
+{% if search %}
 <table>
 <tr>
     <td>Заголовок</td>
     <td>Дата</td>
     <td>Описание(20 символов)</td>
 </tr>
-{% for item in posts %}
+{% for item in search %}
     <tr>
         <td>{{ item.title | censor }}</td>
         <td>{{ item.created_time | date:'d.m.Y' }}</td>
