@@ -15,29 +15,57 @@
         <!-- Responsive navbar-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
     <div class="container">
-      <a class="navbar-brand" href="#">Django flatpages</a>
+      <a class="navbar-brand" href="#">Новостной портал</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse"
               data-target="#navbarResponsive" aria-controls="navbarResponsive"
               aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
+      <div class="collapse navbar-collapse justify-content-between" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="/page_1/">Home</a>
+                            <a class="nav-link" href="/news/">Home</a>
                         </li>
+                        {% block create_post %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/page_2/">page_2</a>
+                            <a class="nav-link" href="{% url 'post_create' %}">Создать пост</a>
                         </li>
+                        {% endblock create_post %}
+                        {% block user_profile %}
+                        {% if request.user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/page_3/">page_3</a>
+                            <a class="nav-link" href="{% url 'profile_edit' %}">Редактировать профиль</a>
                         </li>
+                        {% endif %}
+                        {% endblock user_profile %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/page_4/">page_4</a>
+                            <a class="nav-link" href="/news/search/">Поиск</a>
                         </li>
                    </ul>
-       </div>
+                    {% block user_greeting %}
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            {% if request.user.is_authenticated %}
+                            <p style="color: green;">Добро пожаловать, {{ request.user.username }}!</p>
+                            <a href="{% url 'account_logout' %}" class="btn btn-secondary">Выйти</a>
+                            {% if is_not_author %}
+                            <a href="{% url 'upgrade' %}" class="btn btn-success"> Стать автором!</a>
+                            {% else %}
+                            <button class="btn btn-success">Вы автор</button>
+                            {% endif %}
+
+                            {% else %}
+                            <p style="color: red;">Вы не вошли в систему!</p>
+                              <a href="{% url 'account_login' %}" class="btn btn-primary">Войти</a>
+                            {% endif %}
+                        </li>
+                   </ul>
+                    {% endblock user_greeting %}
+
    </div>
+
+       </div>
+
 </nav>
         <!-- Page content-->
         <div class="container">

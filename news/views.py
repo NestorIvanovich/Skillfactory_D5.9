@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin, PermissionRequiredMixin)
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView)
 from django_filters.views import FilterView
@@ -23,6 +25,8 @@ class NewsList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filterset'] = self.filterset
+        context['is_not_author'] = not self.request.user.groups.filter(
+            name='authors').exists()
         return context
 
 
@@ -50,7 +54,8 @@ class NewsSearch(FilterView):
         return context
 
 
-class PostCreate(CreateView):
+class PostCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'edit.html'
@@ -63,13 +68,17 @@ class PostCreate(CreateView):
             post.content_type = 'статья'
         return super().form_valid(form)
 
-class PostEdit(UpdateView):
+
+class PostEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = ('news.change_post',)
     form_class = PostForm
     model = Post
     template_name = 'edit.html'
+    success_url = reverse_lazy('post_detail')
 
 
-class PostDelete(DeleteView):
+class PostDelete(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+    permission_required = ('news.delete_post',)
     model = Post
     template_name = 'delete.html'
     success_url = reverse_lazy('news')
