@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 django-filter = "*"
 django-allauth = "*"
+apscheduler = "*"
+django-apscheduler = "*"
 
 [dev-packages]
 

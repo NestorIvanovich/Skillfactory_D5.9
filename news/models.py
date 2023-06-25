@@ -24,6 +24,13 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    subscribers = models.ManyToManyField(User,
+                                         through='CategorySubscriber')
+
+
+class CategorySubscriber(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Post(models.Model):
@@ -31,7 +38,8 @@ class Post(models.Model):
     content_type = models.CharField(max_length=10, choices=[
         ('статья', 'Статья'), ('новость', 'Новость')])
     created_time = models.DateTimeField(auto_now_add=True)
-    categories = models.ManyToManyField(Category, through='PostCategory')
+    categories = models.ManyToManyField(Category, through='PostCategory',
+                                        related_name='PostCategory')
     title = models.CharField(max_length=255)
     text = models.TextField()
     rating = models.IntegerField(default=0)

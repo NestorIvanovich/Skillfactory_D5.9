@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from django.core.mail.backends import console
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,9 +52,13 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'django_apscheduler',
 
 ]
 SITE_ID = 1
+SITE_URL = 'http://127.0.0.1:8000/articles'
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -158,3 +164,15 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_FORMS = {'signup': 'sign.models.BaseSignupForm'}
+
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465  # порт smtp сервера тоже одинаковый
+EMAIL_HOST_USER = 'Mahno.Alexey'
+EMAIL_HOST_PASSWORD = 'rceckumosfwxynsr'  # пароль от почты
+EMAIL_USE_SSL = True
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' для теста отправка в консоль
+
+DEFAULT_FROM_EMAIL = 'Mahno.Alexey@yandex.ru'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True

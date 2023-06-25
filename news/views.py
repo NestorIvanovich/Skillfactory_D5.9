@@ -3,11 +3,14 @@ from django.contrib.auth.mixins import (
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView)
 from django_filters.views import FilterView
-from .models import Post
+from .models import Post, Category
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 
 class NewsList(ListView):
@@ -82,3 +85,34 @@ class PostDelete(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'delete.html'
     success_url = reverse_lazy('news')
+
+
+class CategoryList(ListView):
+    model = Category
+    template_name = 'categories.html'
+    context_object_name = 'categories'
+
+
+class PostOfCategoryList(ListView):
+    model = Post
+    ordering = '-id'
+    template_name = 'news.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        self.queryset = Category.objects.get(pk=self.kwargs['pk']).PostCategory.all()
+        return super().get_queryset()
+
+
+def subscribe_to_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.user.is_authenticated:
+        category.subscribers.add(request.user)
+    return redirect('posts_of_categories_list', pk=pk)
+
+
+def send_news_notification(user_email, category, news):
+    subject = f"Новая статья в категории {category}"
+    html_message = render_to_string('email/notification.html', {'category': category, 'news': news})
+    plain_message = strip_tags(html_message)
+    send_mail(subject, plain_message, 'your_email@example.com', [user_email], html_message=html_message)

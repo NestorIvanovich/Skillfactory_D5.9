@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['text', 'title', 'author']
+        fields = ['text', 'title', 'author', 'categories']
 
     def clean(self):
         cleaned_data = super().clean()
