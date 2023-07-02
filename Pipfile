@@ -9,6 +9,8 @@ django-filter = "*"
 django-allauth = "*"
 apscheduler = "*"
 django-apscheduler = "*"
+celery = "*"
+redis = "*"
 
 [dev-packages]
 

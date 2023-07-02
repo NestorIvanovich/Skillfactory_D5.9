@@ -9,8 +9,10 @@ from django.db.models.signals import post_save
 from allauth.account.utils import send_email_confirmation
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from celery import shared_task
 
 
+@shared_task
 def send_notifications(preview, pk, header, subscribers):
     html_content = render_to_string(
         'email/notification.html',
@@ -40,7 +42,7 @@ def notify_about_new_post(sender, instance, **kwargs):
             subscribers = category.subscribers.all()
             subscribers = [s.email for s in subscribers]
 
-        send_notifications(instance.preview(), instance.pk, instance.title,
+        send_notifications.delay(instance.preview(), instance.pk, instance.title,
                            subscribers)
 
 
