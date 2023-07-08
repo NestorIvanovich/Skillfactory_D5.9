@@ -14,6 +14,9 @@
     <body>
         <!-- Responsive navbar-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    {% load cache %} <!-- Загружаем кэширование -->
+    {% cache 30 common %}
+        {% block header %}
     <div class="container">
       <a class="navbar-brand" href="#">Новостной портал</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -34,6 +37,8 @@
                             <a class="nav-link" href="{% url 'post_create' %}">Создать пост</a>
                         </li>
                         {% endblock create_post %}
+                        {% endblock header %}
+
                         {% block user_profile %}
                         {% if request.user.is_authenticated %}
                         <li class="nav-item">
@@ -41,9 +46,13 @@
                         </li>
                         {% endif %}
                         {% endblock user_profile %}
+
+                        {% block search %}
                         <li class="nav-item">
                             <a class="nav-link" href="/news/search/">Поиск</a>
                         </li>
+                        {% endblock search %}
+                        {% endcache %}
                    </ul>
                     {% block user_greeting %}
                     <ul class="navbar-nav mr-auto">

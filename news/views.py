@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.core.cache import cache
 
 
 class NewsList(ListView):
@@ -37,6 +38,14 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
+    queryset = Post.objects.all()
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
 
 
 class NewsSearch(FilterView):
@@ -100,7 +109,8 @@ class PostOfCategoryList(ListView):
     context_object_name = 'posts'
 
     def get_queryset(self):
-        self.queryset = Category.objects.get(pk=self.kwargs['pk']).PostCategory.all()
+        self.queryset = Category.objects.get(
+            pk=self.kwargs['pk']).PostCategory.all()
         return super().get_queryset()
 
 
@@ -113,6 +123,8 @@ def subscribe_to_category(request, pk):
 
 def send_news_notification(user_email, category, news):
     subject = f"Новая статья в категории {category}"
-    html_message = render_to_string('email/notification.html', {'category': category, 'news': news})
+    html_message = render_to_string('email/notification.html',
+                                    {'category': category, 'news': news})
     plain_message = strip_tags(html_message)
-    send_mail(subject, plain_message, 'your_email@example.com', [user_email], html_message=html_message)
+    send_mail(subject, plain_message, 'your_email@example.com',
+              [user_email], html_message=html_message)
